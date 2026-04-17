@@ -1,4 +1,4 @@
-name: Build dlc.dat
+name: Build geosite-rlv.dat
 on:
   push:
     branches:
@@ -33,27 +33,27 @@ jobs:
           echo "TAG_NAME=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
         shell: bash
 
-      - name: Build dlc.dat and plain lists
+      - name: Build geosite-rlv.dat and plain lists
         run: |
           cd code || exit 1
-          go run ./ --outputdir=../ --exportlists=davoyan-category-ru,wl
-          go run ./cmd/datdump/main.go --inputdata=../dlc.dat --outputdir=../ --exportlists=_all_
+          go run ./ --outputdir=../ --outputname=geosite-rlv.dat --exportlists=davoyan-category-ru,wl
+          go run ./cmd/datdump/main.go --inputdata=../geosite-rlv.dat --outputdir=../ --exportlists=_all_
           cd ../ && rm -rf code
 
-      - name: Generate dlc.dat sha256 hash
+      - name: Generate geosite-rlv.dat sha256 hash
         run: |
-          sha256sum dlc.dat > dlc.dat.sha256sum
-          sha256sum dlc.dat_plain.yml > dlc.dat_plain.yml.sha256sum
+          sha256sum geosite-rlv.dat > geosite-rlv.dat.sha256sum
+          sha256sum geosite-rlv.dat_plain.yml > geosite-rlv.dat_plain.yml.sha256sum
 
       - name: Generate Zip
         run: |
-          zip -9 dlc.dat.zip dlc.dat
-          sha256sum dlc.dat.zip > dlc.dat.zip.sha256sum
+          zip -9 geosite-rlv.dat.zip geosite-rlv.dat
+          sha256sum geosite-rlv.dat.zip > geosite-rlv.dat.zip.sha256sum
 
       - name: Generate XZ
         run: |
-          xz -z -9 -k dlc.dat
-          sha256sum dlc.dat.xz > dlc.dat.xz.sha256sum
+          xz -z -9 -k geosite-rlv.dat
+          sha256sum geosite-rlv.dat.xz > geosite-rlv.dat.xz.sha256sum
 
       - name: Git push assets to "release" branch
         run: |
@@ -61,13 +61,13 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b release
-          git add *.txt *.sha256sum dlc.dat dlc.dat_plain.yml dlc.dat.zip dlc.dat.xz
+          git add *.txt *.sha256sum geosite-rlv.dat geosite-rlv.dat_plain.yml geosite-rlv.dat.zip geosite-rlv.dat.xz
           git commit -m "${{ env.RELEASE_NAME }}"
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f -u origin release
 
       - name: Release and upload assets
         run: |
-          gh release create ${{ env.TAG_NAME }} --generate-notes --latest --title ${{ env.RELEASE_NAME }} ./dlc.dat ./dlc.dat.* ./dlc.dat_plain.yml ./dlc.dat_plain.yml.*
+          gh release create ${{ env.TAG_NAME }} --generate-notes --latest --title ${{ env.RELEASE_NAME }} ./geosite-rlv.dat ./geosite-rlv.dat.* ./geosite-rlv.dat_plain.yml ./geosite-rlv.dat_plain.yml.*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
